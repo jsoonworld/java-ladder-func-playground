@@ -14,22 +14,23 @@ public class LadderBoard {
     private static final Random random = new Random();
 
     public static LadderBuildResponse build(LadderBuildRequest request) {
-        int columnCount = request.count();
+        int columnCount = request.columnCount();
+        int rowCount = request.rowCount();
         int middleIndex = (columnCount - 1) / 2;
 
         while (true) {
-            LadderBuildResponse response = generateValidBoardRows(columnCount, middleIndex);
+            LadderBuildResponse response = generateValidBoardRows(columnCount, rowCount, middleIndex);
             LadderBuildResponse validBoard = returnIfValidBoard(response);
             if (validBoard != null) return validBoard;
         }
     }
 
-    private static LadderBuildResponse generateValidBoardRows(int columnCount, int middleIndex) {
+    private static LadderBuildResponse generateValidBoardRows(int columnCount, int rowCount, int middleIndex) {
         List<String> rows = new ArrayList<>();
         boolean middleBridgeExists = false;
         Set<Integer> connectedPositions = new HashSet<>();
 
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < rowCount; i++) {
             List<Boolean> bridgeConnectionStates = generateBridgeConnectionStates(columnCount);
             LadderRow row = new LadderRow(columnCount, bridgeConnectionStates);
             rows.add(row.draw());
