@@ -19,28 +19,30 @@ public class LadderBoard {
         int middleIndex = (columnCount - 1) / 2;
 
         while (true) {
-            LadderBuildResponse response = generateValidBoardRows(columnCount, rowCount, middleIndex);
-            LadderBuildResponse validBoard = returnIfValidBoard(response);
-            if (validBoard != null) return validBoard;
+            List<BridgeLine> lines = generateValidBridgeLines(columnCount, rowCount, middleIndex);
+            if (lines != null) {
+                return new LadderBuildResponse(columnCount, lines);
+            }
         }
     }
 
-    private static LadderBuildResponse generateValidBoardRows(int columnCount, int rowCount, int middleIndex) {
-        List<String> rows = new ArrayList<>();
+    private static List<BridgeLine> generateValidBridgeLines(int columnCount, int rowCount, int middleIndex) {
+        List<BridgeLine> lines = new ArrayList<>();
         boolean middleBridgeExists = false;
         Set<Integer> connectedPositions = new HashSet<>();
 
         for (int i = 0; i < rowCount; i++) {
             List<Boolean> bridgeConnectionStates = generateBridgeConnectionStates(columnCount);
-            LadderRow row = new LadderRow(columnCount, bridgeConnectionStates);
-            rows.add(row.draw());
+            BridgeLine bridgeLine = new BridgeLine(bridgeConnectionStates);
+            lines.add(bridgeLine);
 
-            middleBridgeExists = updateMiddleBridgePresence(middleBridgeExists, row, middleIndex);
+            middleBridgeExists |= isMiddleBridgeConnected(bridgeLine, middleIndex);
             recordConnectedPositions(connectedPositions, bridgeConnectionStates);
         }
 
         if (!allPositionsConnected(connectedPositions, columnCount - 1)) return null;
-        return returnIfMiddleBridgeExists(rows, middleBridgeExists);
+        if (!middleBridgeExists) return null;
+        return lines;
     }
 
     private static List<Boolean> generateBridgeConnectionStates(int columnCount) {
@@ -56,46 +58,24 @@ public class LadderBoard {
     }
 
     private static boolean isConnectable(List<Boolean> connectionStates, int index) {
-        if (index == 0) return true;
-        return !connectionStates.get(index - 1);
+        return index == 0 || !connectionStates.get(index - 1);
     }
 
     private static boolean decideBridgePlacement(boolean connectable) {
-        if (!connectable) return false;
-        return random.nextBoolean();
+        return connectable && random.nextBoolean();
     }
 
-    private static boolean updateMiddleBridgePresence(
-            boolean currentState,
-            LadderRow row,
-            int middleIndex
-    ) {
-        if (row.hasMiddleBridge(middleIndex)) return true;
-        return currentState;
+    private static boolean isMiddleBridgeConnected(BridgeLine line, int middleIndex) {
+        return middleIndex < line.size() && line.isConnected(middleIndex);
     }
 
     private static void recordConnectedPositions(Set<Integer> connected, List<Boolean> currentLine) {
         for (int i = 0; i < currentLine.size(); i++) {
-            addIfConnected(connected, currentLine.get(i), i);
+            if (currentLine.get(i)) connected.add(i);
         }
-    }
-
-    private static void addIfConnected(Set<Integer> connected, boolean isConnected, int index) {
-        if (!isConnected) return;
-        connected.add(index);
     }
 
     private static boolean allPositionsConnected(Set<Integer> connected, int bridgeCount) {
         return connected.size() == bridgeCount;
-    }
-
-    private static LadderBuildResponse returnIfMiddleBridgeExists(List<String> rows, boolean exists) {
-        if (!exists) return null;
-        return new LadderBuildResponse(rows);
-    }
-
-    private static LadderBuildResponse returnIfValidBoard(LadderBuildResponse response) {
-        if (response == null) return null;
-        return response;
     }
 }
