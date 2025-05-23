@@ -14,71 +14,62 @@ public class LadderBoard {
     private static final Random random = new Random();
 
     public static LadderBuildResponse build(LadderBuildRequest request) {
-        int columnCount = request.columnCount();
-        int rowCount = request.rowCount();
-        int middleIndex = (columnCount - 1) / 2;
+        int participantCount = request.columnCount();
+        int ladderHeight = request.rowCount();
+        int centerColumnIndex = (participantCount - 1) / 2;
 
-        List<BridgeLine> validLines = createValidBridgeLines(columnCount, rowCount, middleIndex);
-        return new LadderBuildResponse(columnCount, validLines);
+        List<BridgeLine> bridgeLines = generateValidBridgeLines(participantCount, ladderHeight, centerColumnIndex);
+        return new LadderBuildResponse(participantCount, bridgeLines);
     }
 
-    private static List<BridgeLine> createValidBridgeLines(int columnCount, int rowCount, int middleIndex) {
+    private static List<BridgeLine> generateValidBridgeLines(int participantCount, int ladderHeight, int centerColumnIndex) {
         while (true) {
-            List<BridgeLine> lines = generateBridgeLines(columnCount, rowCount, middleIndex);
-            if (lines != null) return lines;
+            List<BridgeLine> candidateBridgeLines = tryGenerateBridgeLines(participantCount, ladderHeight, centerColumnIndex);
+            if (candidateBridgeLines != null) return candidateBridgeLines;
         }
     }
 
-    private static List<BridgeLine> generateBridgeLines(int columnCount, int rowCount, int middleIndex) {
-        List<BridgeLine> lines = new ArrayList<>();
-        boolean middleBridgeExists = false;
-        Set<Integer> connectedPositions = new HashSet<>();
+    private static List<BridgeLine> tryGenerateBridgeLines(int participantCount, int ladderHeight, int centerColumnIndex) {
+        List<BridgeLine> generatedBridgeLines = new ArrayList<>();
+        boolean isCenterBridgePresent = false;
+        Set<Integer> connectedColumnIndices = new HashSet<>();
 
-        for (int i = 0; i < rowCount; i++) {
-            List<Boolean> bridgeConnectionStates = generateBridgeConnectionStates(columnCount);
-            BridgeLine bridgeLine = new BridgeLine(bridgeConnectionStates);
-            lines.add(bridgeLine);
+        for (int row = 0; row < ladderHeight; row++) {
+            List<Boolean> connectionStates = generateConnectionStates(participantCount);
+            BridgeLine line = new BridgeLine(connectionStates);
+            generatedBridgeLines.add(line);
 
-            middleBridgeExists |= isMiddleBridgeConnected(bridgeLine, middleIndex);
-            recordConnectedPositions(connectedPositions, bridgeConnectionStates);
+            isCenterBridgePresent |= isConnectedAtCenter(line, centerColumnIndex);
+            recordConnectedIndices(connectedColumnIndices, connectionStates);
         }
 
-        if (!allPositionsConnected(connectedPositions, columnCount - 1)) return null;
-        if (!middleBridgeExists) return null;
-        return lines;
+        if (!areAllColumnsConnected(connectedColumnIndices, participantCount - 1)) return null;
+        if (!isCenterBridgePresent) return null;
+
+        return generatedBridgeLines;
     }
 
-    private static List<Boolean> generateBridgeConnectionStates(int columnCount) {
+    private static List<Boolean> generateConnectionStates(int participantCount) {
         List<Boolean> connectionStates = new ArrayList<>();
-
-        for (int index = 0; index < columnCount - 1; index++) {
-            boolean connectable = isConnectable(connectionStates, index);
-            boolean shouldPlaceBridge = decideBridgePlacement(connectable);
-            connectionStates.add(shouldPlaceBridge);
+        for (int index = 0; index < participantCount - 1; index++) {
+            boolean canConnect = index == 0 || !connectionStates.get(index - 1);
+            boolean shouldConnect = canConnect && random.nextBoolean();
+            connectionStates.add(shouldConnect);
         }
-
         return connectionStates;
     }
 
-    private static boolean isConnectable(List<Boolean> connectionStates, int index) {
-        return index == 0 || !connectionStates.get(index - 1);
+    private static boolean isConnectedAtCenter(BridgeLine line, int centerIndex) {
+        return centerIndex < line.width() && line.isConnectedAt(centerIndex);
     }
 
-    private static boolean decideBridgePlacement(boolean connectable) {
-        return connectable && random.nextBoolean();
-    }
-
-    private static boolean isMiddleBridgeConnected(BridgeLine line, int middleIndex) {
-        return middleIndex < line.size() && line.isConnected(middleIndex);
-    }
-
-    private static void recordConnectedPositions(Set<Integer> connected, List<Boolean> currentLine) {
-        for (int i = 0; i < currentLine.size(); i++) {
-            if (currentLine.get(i)) connected.add(i);
+    private static void recordConnectedIndices(Set<Integer> connectedColumnIndices, List<Boolean> connectionStates) {
+        for (int i = 0; i < connectionStates.size(); i++) {
+            if (connectionStates.get(i)) connectedColumnIndices.add(i);
         }
     }
 
-    private static boolean allPositionsConnected(Set<Integer> connected, int bridgeCount) {
-        return connected.size() == bridgeCount;
+    private static boolean areAllColumnsConnected(Set<Integer> connectedColumnIndices, int expectedCount) {
+        return connectedColumnIndices.size() == expectedCount;
     }
 }

@@ -4,21 +4,21 @@ import java.util.List;
 
 public class BridgeLine {
 
-    private final List<Boolean> connections;
+    private final List<Boolean> horizontalConnections;
 
-    public BridgeLine(List<Boolean> connections) {
-        this.connections = connections;
+    public BridgeLine(List<Boolean> horizontalConnections) {
+        this.horizontalConnections = horizontalConnections;
     }
 
-    public boolean isConnected(int index) {
-        return connections.get(index);
+    public boolean isConnectedAt(int index) {
+        return horizontalConnections.get(index);
     }
 
-    public int size() {
-        return connections.size();
+    public int width() {
+        return horizontalConnections.size();
     }
 
-    public List<Boolean> connections() {
-        return connections;
+    public List<Boolean> getConnections() {
+        return horizontalConnections;
     }
 }
