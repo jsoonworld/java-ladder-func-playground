@@ -18,15 +18,18 @@ public class LadderBoard {
         int rowCount = request.rowCount();
         int middleIndex = (columnCount - 1) / 2;
 
+        List<BridgeLine> validLines = createValidBridgeLines(columnCount, rowCount, middleIndex);
+        return new LadderBuildResponse(columnCount, validLines);
+    }
+
+    private static List<BridgeLine> createValidBridgeLines(int columnCount, int rowCount, int middleIndex) {
         while (true) {
-            List<BridgeLine> lines = generateValidBridgeLines(columnCount, rowCount, middleIndex);
-            if (lines != null) {
-                return new LadderBuildResponse(columnCount, lines);
-            }
+            List<BridgeLine> lines = generateBridgeLines(columnCount, rowCount, middleIndex);
+            if (lines != null) return lines;
         }
     }
 
-    private static List<BridgeLine> generateValidBridgeLines(int columnCount, int rowCount, int middleIndex) {
+    private static List<BridgeLine> generateBridgeLines(int columnCount, int rowCount, int middleIndex) {
         List<BridgeLine> lines = new ArrayList<>();
         boolean middleBridgeExists = false;
         Set<Integer> connectedPositions = new HashSet<>();

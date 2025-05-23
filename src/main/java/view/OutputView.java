@@ -2,8 +2,10 @@ package view;
 
 import domain.BridgeLine;
 import dto.LadderBuildResponse;
+import dto.LadderResultResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public class OutputView {
 
@@ -23,6 +25,12 @@ public class OutputView {
         for (BridgeLine line : response.lines()) {
             String renderedRow = renderRow(line.connections(), columnCount);
             System.out.println("    " + renderedRow);
+        }
+    }
+
+    public void printResult(LadderResultResponse response) {
+        for (Map.Entry<Integer, Integer> entry : response.positionMap().entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
     }
 

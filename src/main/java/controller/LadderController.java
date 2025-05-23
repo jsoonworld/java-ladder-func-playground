@@ -1,8 +1,10 @@
 package controller;
 
 import domain.LadderBoard;
+import domain.LadderResult;
 import dto.LadderBuildRequest;
 import dto.LadderBuildResponse;
+import dto.LadderResultResponse;
 import view.InputView;
 import view.OutputView;
 
@@ -25,5 +27,10 @@ public class LadderController {
 
         outputView.printLadderTitle();
         outputView.printLadder(response);
+
+        LadderResult result = new LadderResult(response.lines(), response.columnCount());
+        LadderResultResponse resultResponse = new LadderResultResponse(result.mapStartToEnd());
+
+        outputView.printResult(resultResponse);
     }
 }
