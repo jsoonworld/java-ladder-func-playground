@@ -1,21 +1,23 @@
 package view;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class InputView {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    public String readParticipantNames() {
-        return readLine();
+    public List<String> readParticipantNames() {
+        return Arrays.asList(readLine().split(","));
     }
 
-    public String readResultLabels() {
-        return readLine();
+    public List<String> readResultLabels() {
+        return Arrays.asList(readLine().split(","));
     }
 
-    public String readLadderHeight() {
-        return readLine();
+    public int readLadderHeight() {
+        return Integer.parseInt(readLine());
     }
 
     public String readResultRequest() {

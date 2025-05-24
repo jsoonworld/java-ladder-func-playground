@@ -17,26 +17,20 @@ public class LadderPath {
     public Map<Integer, Integer> mapStartToEndIndex() {
         Map<Integer, Integer> startToEndMap = new LinkedHashMap<>();
 
-        for (int startIndex = 0; startIndex < numberOfColumns; startIndex++) {
-            startToEndMap.put(startIndex, traverseFrom(startIndex));
+        for (int startColumnIndex = 0; startColumnIndex < numberOfColumns; startColumnIndex++) {
+            startToEndMap.put(startColumnIndex, tracePathFrom(startColumnIndex));
         }
 
         return startToEndMap;
     }
 
-    private int traverseFrom(int startColumnIndex) {
-        int current = startColumnIndex;
+    private int tracePathFrom(int startColumnIndex) {
+        int currentPosition = startColumnIndex;
 
-        for (BridgeLine line : bridgeLines) {
-            current = moveAlongLine(current, line);
+        for (BridgeLine bridgeLine : bridgeLines) {
+            currentPosition = bridgeLine.nextPositionFrom(currentPosition);
         }
 
-        return current;
-    }
-
-    private int moveAlongLine(int position, BridgeLine line) {
-        if (position > 0 && line.isConnectedAt(position - 1)) return position - 1;
-        if (position < line.width() && line.isConnectedAt(position)) return position + 1;
-        return position;
+        return currentPosition;
     }
 }

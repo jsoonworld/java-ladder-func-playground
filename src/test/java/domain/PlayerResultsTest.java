@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class PlayerResultsTest {
 
     @Test
@@ -42,5 +44,15 @@ class PlayerResultsTest {
 
         softly.assertThat(results.allResults()).containsExactlyEntriesOf(expected);
         softly.assertAll();
+    }
+
+    @Test
+    @DisplayName("참가자가 없을 경우 예외 발생")
+    void throwsIfEmptyParticipants() {
+        List<String> empty = List.of();
+        List<String> labels = List.of();
+        Map<Integer, Integer> indexMap = Map.of();
+        assertThrows(IllegalArgumentException.class, () ->
+                PlayerResults.from(empty, labels, indexMap));
     }
 }
